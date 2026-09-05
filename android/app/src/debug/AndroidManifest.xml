@@ -1,0 +1,5 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The INTERNET permission is required for development. Flutter builds DEBUG
+         and PROFILE mode apps with a Dart VM service that talks over the network. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+</manifest>
