@@ -87,4 +87,3 @@ whole rule set can be tested without a device.
 2. Set a real `applicationId` in `android/app/build.gradle.kts` (currently `com.example.tambola_caller`).
 3. Add a release signing config — the release build currently signs with the debug key. `flutter build
    appbundle --release` works without one, but Play will not accept a debug-signed bundle.
-```
