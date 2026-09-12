@@ -135,7 +135,7 @@ class NumberCell extends StatelessWidget {
                 child: Icon(Icons.check_rounded, size: 11, color: foreground),
               ),
             if (isCurrent)
-              Positioned(
+              const Positioned(
                 top: 1,
                 right: 1,
                 child: Icon(
@@ -177,7 +177,7 @@ class BoardLegend extends StatelessWidget {
           foreground: scheme.onPrimaryContainer,
           icon: Icons.check_rounded,
         ),
-        _LegendItem(
+        const _LegendItem(
           label: 'Current',
           background: AppTheme.accent,
           border: AppTheme.onAccent,
