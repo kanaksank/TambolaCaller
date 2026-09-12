@@ -40,7 +40,9 @@ flutter run                # debug on a connected device
 flutter build apk --release
 ```
 
-Requires Flutter 3.24 or newer (Dart 3.5+). Dependencies: [`flutter_tts`](https://pub.dev/packages/flutter_tts)
+Requires Flutter 3.24 or newer (Dart 3.5+). The Android build targets the toolchain that ships with
+current stable Flutter: Gradle 9.3.1, Android Gradle Plugin 9.1.0, Kotlin 2.4.0 and JDK 17+.
+Dependencies: [`flutter_tts`](https://pub.dev/packages/flutter_tts)
 for the voice and [`shared_preferences`](https://pub.dev/packages/shared_preferences) for local game state —
 both work entirely on-device.
 
@@ -83,4 +85,6 @@ whole rule set can be tested without a device.
    [`flutter_launcher_icons`](https://pub.dev/packages/flutter_launcher_icons) to `dev_dependencies`
    and run `dart run flutter_launcher_icons`.
 2. Set a real `applicationId` in `android/app/build.gradle.kts` (currently `com.example.tambola_caller`).
-3. Add a release signing config — the release build currently signs with the debug key.
+3. Add a release signing config — the release build currently signs with the debug key. `flutter build
+   appbundle --release` works without one, but Play will not accept a debug-signed bundle.
+```

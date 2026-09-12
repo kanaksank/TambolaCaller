@@ -26,9 +26,8 @@ android {
     buildTypes {
         release {
             // TODO: Replace with your own signing config before publishing to Play Store.
+            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
-            isMinifyEnabled = false
-            isShrinkResources = false
         }
     }
 }
