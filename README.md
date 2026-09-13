@@ -7,7 +7,7 @@ voice announcement for every call. No login, no internet, no server.
 
 ## Features
 
-- **Huge, readable number.** The current call fills the screen and scales to whatever space is available.
+- **Huge, readable number.** The current call fills the circle and scales to whatever space is available.
 - **Never repeats.** Numbers are drawn only from 1–90 and never twice in the same game.
 - **Voice announcements** through the device's built-in text-to-speech:
   - `1–9` → *"Single number, number 5; I repeat, number 5."*
@@ -20,7 +20,8 @@ voice announcement for every call. No login, no internet, no server.
   the current number is ringed and glowing, so states never depend on colour alone.
 - **Recent numbers** with the newest call highlighted.
 - **Game persistence** — the called list, current number and settings survive the app being closed.
-- **Landscape first**, portrait fully supported.
+- **Orientation is the caller's choice** — Auto, Landscape or Portrait, remembered between sessions.
+  Landscape gives the biggest number; portrait suits calling one-handed.
 
 ## Screens
 
@@ -29,8 +30,8 @@ voice announcement for every call. No login, no internet, no server.
 | **Caller** | Current number, announcement text, `GENERATE NUMBER`, `REPEAT NUMBER`, recent calls, called counter, game controls |
 | **Number Board** | The full 1–90 grid with called / current / uncalled states and a legend |
 
-Game controls (voice, speed, reset, new game) live behind the settings icon in the header. Starting a
-new game always asks for confirmation first.
+Game controls (voice, speed, orientation, reset, new game) live behind the settings icon in the
+header. Starting a new game always asks for confirmation first.
 
 ## Running it
 
@@ -61,12 +62,13 @@ widget tests, none of which touch the platform text-to-speech engine.
 ```
 lib/
 ├── main.dart                     # bootstrap: orientation, controller, saved game
-├── app.dart                      # MaterialApp + welcome/home routing
-├── models/                       # Announcement, PersistedGame
+├── app.dart                      # MaterialApp, orientation lock, welcome/home routing
+├── models/                       # Announcement, PersistedGame, OrientationMode
 ├── services/
 │   ├── announcement_builder.dart # the calling rules, in one testable place
 │   ├── game_controller.dart      # all game logic (ChangeNotifier)
 │   ├── game_storage.dart         # shared_preferences persistence
+│   ├── orientation_service.dart  # preference -> DeviceOrientation list
 │   └── voice_service.dart        # text-to-speech behind an interface
 ├── state/game_scope.dart         # InheritedNotifier — no state-management package
 ├── screens/                      # welcome, home shell, caller, board
