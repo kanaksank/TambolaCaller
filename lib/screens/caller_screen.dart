@@ -100,27 +100,29 @@ class _LandscapeCaller extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Left: the call in words, then the circle centred in what is left.
-    // Right: the two buttons, with the recent calls directly beneath them.
+    // Three columns: the call in words, then nothing but the circle, then the
+    // controls. Giving the ball a column of its own means it is limited only
+    // by the height of the screen.
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         Expanded(
-          flex: 6,
-          child: Column(
-            children: <Widget>[
-              AnnouncementText(
-                announcement: game.currentAnnouncement,
-                compact: true,
-              ),
-              const SizedBox(height: 8),
-              Expanded(child: NumberBall(number: game.currentNumber)),
-            ],
+          flex: 3,
+          child: Center(
+            child: AnnouncementText(
+              announcement: game.currentAnnouncement,
+              alignStart: true,
+            ),
           ),
         ),
-        const SizedBox(width: 18),
+        const SizedBox(width: 12),
         Expanded(
           flex: 5,
+          child: NumberBall(number: game.currentNumber),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          flex: 4,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
@@ -137,9 +139,16 @@ class _LandscapeCaller extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text('RECENT NUMBERS', style: AppTheme.sectionLabel(context)),
-                  const Spacer(),
+                  Flexible(
+                    child: Text(
+                      'RECENT NUMBERS',
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTheme.sectionLabel(context),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
                   Text(
                     '${game.remainingCount} LEFT',
                     style: AppTheme.sectionLabel(context),
