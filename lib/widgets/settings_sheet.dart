@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../models/orientation_mode.dart';
 import '../services/game_controller.dart';
 import '../services/voice_service.dart';
 import '../state/game_scope.dart';
 import '../theme/app_theme.dart';
 import 'confirm_dialog.dart';
 
-/// Game controls: voice, speed, reset and new game.
+/// Game controls: voice, speed, orientation, reset and new game.
 Future<void> showGameSettings(BuildContext context) {
   return showModalBottomSheet<void>(
     context: context,
@@ -105,6 +106,42 @@ class _GameSettingsSheet extends StatelessWidget {
                 icon: const Icon(Icons.play_arrow_rounded),
                 label: const Text('Test voice'),
               ),
+            ),
+            const Divider(height: 24),
+            Row(
+              children: <Widget>[
+                const Icon(Icons.screen_rotation_rounded),
+                const SizedBox(width: 12),
+                Text(
+                  'Screen orientation',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<OrientationMode>(
+                showSelectedIcon: false,
+                segments: <ButtonSegment<OrientationMode>>[
+                  for (final OrientationMode mode in OrientationMode.values)
+                    ButtonSegment<OrientationMode>(
+                      value: mode,
+                      label: Text(mode.label),
+                    ),
+                ],
+                selected: <OrientationMode>{game.orientationMode},
+                onSelectionChanged: (Set<OrientationMode> selection) =>
+                    game.setOrientationMode(selection.first),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Landscape shows the biggest number; Auto follows how you hold '
+              'the phone.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
             ),
             const Divider(height: 24),
             ListTile(

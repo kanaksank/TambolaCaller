@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:tambola_caller/models/orientation_mode.dart';
 import 'package:tambola_caller/models/persisted_game.dart';
 import 'package:tambola_caller/services/game_controller.dart';
 import 'package:tambola_caller/services/game_storage.dart';
@@ -126,6 +127,26 @@ void main() {
     await game.setSpeechRate(5);
     expect(game.speechRate, VoiceSpeed.fastest);
     expect(voice.rate, VoiceSpeed.fastest);
+  });
+
+  test('remembers the orientation preference', () async {
+    expect(game.orientationMode, OrientationMode.auto);
+
+    await game.setOrientationMode(OrientationMode.portrait);
+
+    expect(game.orientationMode, OrientationMode.portrait);
+    expect(storage.current.orientationMode, OrientationMode.portrait);
+    expect(
+      OrientationMode.fromStorage(
+        storage.current.orientationMode.storageKey,
+      ),
+      OrientationMode.portrait,
+    );
+  });
+
+  test('falls back to auto for an unknown stored orientation', () {
+    expect(OrientationMode.fromStorage('sideways'), OrientationMode.auto);
+    expect(OrientationMode.fromStorage(null), OrientationMode.auto);
   });
 
   test('welcome screen is only shown once', () async {

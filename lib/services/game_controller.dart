@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 
 import '../models/announcement.dart';
+import '../models/orientation_mode.dart';
 import '../models/persisted_game.dart';
 import 'announcement_builder.dart';
 import 'game_storage.dart';
@@ -38,6 +39,7 @@ class GameController extends ChangeNotifier {
   bool _voiceEnabled = true;
   double _speechRate = VoiceSpeed.defaultRate;
   bool _hasSeenWelcome = false;
+  OrientationMode _orientationMode = OrientationMode.auto;
   bool _isLoaded = false;
 
   // ---------------------------------------------------------------- getters
@@ -78,6 +80,8 @@ class GameController extends ChangeNotifier {
 
   bool get hasSeenWelcome => _hasSeenWelcome;
 
+  OrientationMode get orientationMode => _orientationMode;
+
   bool isCalled(int number) => _calledSet.contains(number);
 
   // ---------------------------------------------------------------- actions
@@ -94,6 +98,7 @@ class GameController extends ChangeNotifier {
     _voiceEnabled = saved.voiceEnabled;
     _speechRate = VoiceSpeed.clamp(saved.speechRate);
     _hasSeenWelcome = saved.hasSeenWelcome;
+    _orientationMode = saved.orientationMode;
     _isLoaded = true;
     await _voice.setSpeechRate(_speechRate);
     notifyListeners();
@@ -155,6 +160,14 @@ class GameController extends ChangeNotifier {
     await _voice.speak(AnnouncementBuilder.build(67).speech);
   }
 
+  /// Locks the app to landscape, to portrait, or lets it follow the device.
+  Future<void> setOrientationMode(OrientationMode mode) async {
+    if (_orientationMode == mode) return;
+    _orientationMode = mode;
+    notifyListeners();
+    await _persist();
+  }
+
   Future<void> markWelcomeSeen() async {
     if (_hasSeenWelcome) return;
     _hasSeenWelcome = true;
@@ -178,6 +191,7 @@ class GameController extends ChangeNotifier {
         voiceEnabled: _voiceEnabled,
         speechRate: _speechRate,
         hasSeenWelcome: _hasSeenWelcome,
+        orientationMode: _orientationMode,
       ),
     );
   }
