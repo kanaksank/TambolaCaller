@@ -26,7 +26,7 @@ class BoardScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          const AppHeader(title: 'NUMBER BOARD'),
+          const AppHeader(title: 'NUMBER BOARD', shortTitle: 'BOARD'),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
             child: Row(
