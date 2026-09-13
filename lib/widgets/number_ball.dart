@@ -74,10 +74,8 @@ class NumberBall extends StatelessWidget {
           // Digits carry no descender, so their ink sits above the middle of
           // the line box. Shifting by the measured baseline puts the centre of
           // the glyphs on the centre of the circle.
-          final double baseline = painter.computeDistanceToActualBaseline(
-                TextBaseline.alphabetic,
-              ) ??
-              painter.height;
+          final double baseline =
+              painter.computeDistanceToActualBaseline(TextBaseline.alphabetic);
           baselineNudge =
               (painter.height / 2 - (baseline - inkHeight / 2)) * scale;
           painter.dispose();
