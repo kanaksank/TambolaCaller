@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/orientation_mode.dart';
 import '../models/persisted_game.dart';
 import 'announcement_builder.dart';
 
@@ -16,6 +17,7 @@ class SharedPreferencesGameStorage implements GameStorage {
   static const String _voiceKey = 'tambola.voice_enabled';
   static const String _rateKey = 'tambola.speech_rate';
   static const String _welcomeKey = 'tambola.has_seen_welcome';
+  static const String _orientationKey = 'tambola.orientation_mode';
 
   @override
   Future<PersistedGame> load() async {
@@ -40,6 +42,8 @@ class SharedPreferencesGameStorage implements GameStorage {
         voiceEnabled: prefs.getBool(_voiceKey) ?? true,
         speechRate: prefs.getDouble(_rateKey) ?? const PersistedGame().speechRate,
         hasSeenWelcome: prefs.getBool(_welcomeKey) ?? false,
+        orientationMode:
+            OrientationMode.fromStorage(prefs.getString(_orientationKey)),
       );
     } catch (error) {
       debugPrint('Could not read the saved game: $error');
@@ -58,6 +62,7 @@ class SharedPreferencesGameStorage implements GameStorage {
       await prefs.setBool(_voiceKey, game.voiceEnabled);
       await prefs.setDouble(_rateKey, game.speechRate);
       await prefs.setBool(_welcomeKey, game.hasSeenWelcome);
+      await prefs.setString(_orientationKey, game.orientationMode.storageKey);
     } catch (error) {
       debugPrint('Could not save the game: $error');
     }
