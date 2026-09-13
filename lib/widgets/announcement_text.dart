@@ -40,7 +40,7 @@ class AnnouncementText extends StatelessWidget {
             call.title,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: compact ? 26 : 32,
+              fontSize: compact ? 23 : 32,
               fontWeight: FontWeight.w900,
               letterSpacing: 1.6,
               color: scheme.onSurface,
@@ -54,7 +54,7 @@ class AnnouncementText extends StatelessWidget {
             call.detail,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: compact ? 15 : 18,
+              fontSize: compact ? 14 : 18,
               fontWeight: FontWeight.w600,
               color: scheme.onSurfaceVariant,
             ),

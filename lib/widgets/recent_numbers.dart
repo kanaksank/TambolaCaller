@@ -9,6 +9,7 @@ class RecentNumbers extends StatelessWidget {
     required this.numbers,
     this.compact = false,
     this.horizontal = false,
+    this.showLabel = true,
   });
 
   /// Newest number first.
@@ -20,6 +21,9 @@ class RecentNumbers extends StatelessWidget {
   /// Lay the chips out in one scrollable row instead of wrapping.
   final bool horizontal;
 
+  /// Set false when the surrounding layout already carries the heading.
+  final bool showLabel;
+
   @override
   Widget build(BuildContext context) {
     final ColorScheme scheme = Theme.of(context).colorScheme;
@@ -28,8 +32,10 @@ class RecentNumbers extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        Text('RECENT NUMBERS', style: AppTheme.sectionLabel(context)),
-        const SizedBox(height: 10),
+        if (showLabel) ...<Widget>[
+          Text('RECENT NUMBERS', style: AppTheme.sectionLabel(context)),
+          const SizedBox(height: 10),
+        ],
         if (numbers.isEmpty)
           Text(
             'No numbers called yet.',

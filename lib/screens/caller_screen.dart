@@ -100,10 +100,8 @@ class _LandscapeCaller extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme scheme = Theme.of(context).colorScheme;
-
-    // Left: nothing but the number, so it gets the full height of the screen.
-    // Right: the controls, with the recent calls directly beneath them.
+    // Left: the call in words, then the circle centred in what is left.
+    // Right: the two buttons, with the recent calls directly beneath them.
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -111,12 +109,12 @@ class _LandscapeCaller extends StatelessWidget {
           flex: 6,
           child: Column(
             children: <Widget>[
-              Expanded(child: NumberBall(number: game.currentNumber)),
-              const SizedBox(height: 10),
               AnnouncementText(
                 announcement: game.currentAnnouncement,
                 compact: true,
               ),
+              const SizedBox(height: 8),
+              Expanded(child: NumberBall(number: game.currentNumber)),
             ],
           ),
         ),
@@ -127,55 +125,36 @@ class _LandscapeCaller extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               GenerateButton(
-                height: 66,
+                height: 58,
                 onPressed: game.isComplete ? null : game.generate,
               ),
               const SizedBox(height: 10),
               RepeatButton(
-                height: 52,
+                height: 46,
                 onPressed: game.currentNumber == null || !game.voiceEnabled
                     ? null
                     : () => game.repeat(),
               ),
-              const SizedBox(height: 14),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: scheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(AppTheme.radius),
-                    border: Border.all(color: scheme.outlineVariant),
+              const SizedBox(height: 16),
+              Row(
+                children: <Widget>[
+                  Text('RECENT NUMBERS', style: AppTheme.sectionLabel(context)),
+                  const Spacer(),
+                  Text(
+                    '${game.remainingCount} LEFT',
+                    style: AppTheme.sectionLabel(context),
                   ),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        RecentNumbers(
-                          numbers: game.recentNumbers(count: 9),
-                          compact: true,
-                        ),
-                        const SizedBox(height: 14),
-                        Row(
-                          children: <Widget>[
-                            Text(
-                              'REMAINING',
-                              style: AppTheme.sectionLabel(context),
-                            ),
-                            const Spacer(),
-                            Text(
-                              '${game.remainingCount}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w900,
-                                    color: scheme.primary,
-                                  ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              // Whatever height is left goes to the chips, and they scroll
+              // rather than being squeezed out on a short landscape screen.
+              Expanded(
+                child: SingleChildScrollView(
+                  child: RecentNumbers(
+                    numbers: game.recentNumbers(count: 9),
+                    compact: true,
+                    showLabel: false,
                   ),
                 ),
               ),
