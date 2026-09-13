@@ -16,6 +16,26 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
+
+# Launcher icon. The two source images live in assets/icon/ and are only read
+# at build time, which is why they are not listed as runtime assets above.
+# After changing either image, or anything in this block, regenerate with:
+#
+#   flutter pub get
+#   dart run flutter_launcher_icons
+#
+# That writes the density buckets under android/app/src/main/res/mipmap-*/ and
+# rewrites the adaptive icon in mipmap-anydpi-v26/, so the generated files are
+# committed rather than the placeholder vectors they replace.
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/icon.png"
+  adaptive_icon_background: "#241B47"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+  adaptive_icon_foreground_inset: 16
+  min_sdk_android: 24

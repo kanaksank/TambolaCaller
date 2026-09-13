@@ -20,8 +20,9 @@ voice announcement for every call. No login, no internet, no server.
   the current number is ringed and glowing, so states never depend on colour alone.
 - **Recent numbers** with the newest call highlighted.
 - **Game persistence** — the called list, current number and settings survive the app being closed.
-- **Orientation is the caller's choice** — Auto, Landscape or Portrait, remembered between sessions.
-  Landscape gives the biggest number; portrait suits calling one-handed.
+- **Orientation is the caller's choice** — Auto, Landscape or Portrait, remembered between sessions,
+  with a one-tap switch in the header. Landscape gives the biggest number; portrait suits calling
+  one-handed.
 
 ## Screens
 
@@ -81,11 +82,19 @@ whole rule set can be tested without a device.
 
 ## Before publishing to Play Store
 
-1. Replace the placeholder launcher icon. It is currently a vector tambola ball
-   (`android/app/src/main/res/drawable/ic_launcher_foreground.xml` plus the adaptive icon in
-   `mipmap-anydpi-v26/`). The easiest swap: drop a 1024×1024 PNG into `assets/icon/`, add
-   [`flutter_launcher_icons`](https://pub.dev/packages/flutter_launcher_icons) to `dev_dependencies`
-   and run `dart run flutter_launcher_icons`.
+1. Generate the launcher icon from `assets/icon/`:
+
+   ```bash
+   flutter pub get
+   dart run flutter_launcher_icons
+   ```
+
+   `icon.png` is the square icon and `icon_foreground.png` the adaptive foreground — both are read
+   only at build time. The generator fills `android/app/src/main/res/mipmap-*/` and rewrites the
+   adaptive icon and `values/colors.xml`; commit what it produces. Two placeholder vectors
+   (`mipmap/ic_launcher.xml` and `drawable/ic_launcher_foreground.xml`) are then unused and can be
+   deleted. Foreground art needs generous padding — Android masks adaptive icons to a circle, squircle
+   or rounded square depending on the launcher, and `adaptive_icon_foreground_inset` only adds 16%.
 2. Set a real `applicationId` in `android/app/build.gradle.kts` (currently `com.example.tambola_caller`).
 3. Add a release signing config — the release build currently signs with the debug key. `flutter build
    appbundle --release` works without one, but Play will not accept a debug-signed bundle.
