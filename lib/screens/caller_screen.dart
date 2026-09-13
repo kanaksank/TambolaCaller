@@ -102,11 +102,13 @@ class _LandscapeCaller extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme scheme = Theme.of(context).colorScheme;
 
+    // Left: nothing but the number, so it gets the full height of the screen.
+    // Right: the controls, with the recent calls directly beneath them.
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         Expanded(
-          flex: 5,
+          flex: 6,
           child: Column(
             children: <Widget>[
               Expanded(child: NumberBall(number: game.currentNumber)),
@@ -115,64 +117,69 @@ class _LandscapeCaller extends StatelessWidget {
                 announcement: game.currentAnnouncement,
                 compact: true,
               ),
-              const SizedBox(height: 12),
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    flex: 3,
-                    child: GenerateButton(
-                      height: 62,
-                      onPressed: game.isComplete ? null : game.generate,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    flex: 2,
-                    child: RepeatButton(
-                      height: 62,
-                      label: 'REPEAT',
-                      onPressed:
-                          game.currentNumber == null || !game.voiceEnabled
-                              ? null
-                              : () => game.repeat(),
-                    ),
-                  ),
-                ],
-              ),
             ],
           ),
         ),
         const SizedBox(width: 18),
         Expanded(
-          flex: 3,
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(AppTheme.radius),
-              border: Border.all(color: scheme.outlineVariant),
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  RecentNumbers(
-                    numbers: game.recentNumbers(count: 12),
-                    compact: true,
-                  ),
-                  const SizedBox(height: 20),
-                  Text('REMAINING', style: AppTheme.sectionLabel(context)),
-                  const SizedBox(height: 6),
-                  Text(
-                    '${game.remainingCount}',
-                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          color: scheme.primary,
-                        ),
-                  ),
-                ],
+          flex: 5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              GenerateButton(
+                height: 66,
+                onPressed: game.isComplete ? null : game.generate,
               ),
-            ),
+              const SizedBox(height: 10),
+              RepeatButton(
+                height: 52,
+                onPressed: game.currentNumber == null || !game.voiceEnabled
+                    ? null
+                    : () => game.repeat(),
+              ),
+              const SizedBox(height: 14),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: scheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(AppTheme.radius),
+                    border: Border.all(color: scheme.outlineVariant),
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        RecentNumbers(
+                          numbers: game.recentNumbers(count: 9),
+                          compact: true,
+                        ),
+                        const SizedBox(height: 14),
+                        Row(
+                          children: <Widget>[
+                            Text(
+                              'REMAINING',
+                              style: AppTheme.sectionLabel(context),
+                            ),
+                            const Spacer(),
+                            Text(
+                              '${game.remainingCount}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w900,
+                                    color: scheme.primary,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
