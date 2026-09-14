@@ -23,9 +23,14 @@ class GameController extends ChangeNotifier {
     required GameStorage storage,
     required VoiceService voice,
     Random? random,
+    this.settleDelay = const Duration(seconds: 1),
   })  : _storage = storage,
         _voice = voice,
         _random = random ?? Random();
+
+  /// Quiet pause held after an announcement finishes before another number can
+  /// be drawn, so a fast double tap cannot skip a call.
+  final Duration settleDelay;
 
   static const int totalNumbers = AnnouncementBuilder.maxNumber;
 
@@ -41,6 +46,8 @@ class GameController extends ChangeNotifier {
   bool _hasSeenWelcome = false;
   OrientationMode _orientationMode = OrientationMode.auto;
   bool _isLoaded = false;
+  bool _isAnnouncing = false;
+  bool _isDisposed = false;
 
   // ---------------------------------------------------------------- getters
 
@@ -82,6 +89,11 @@ class GameController extends ChangeNotifier {
 
   OrientationMode get orientationMode => _orientationMode;
 
+  /// True while a number is being spoken, and through the pause that follows.
+  /// Taps arriving in this window are ignored rather than refused: the caller
+  /// is told nothing, the extra tap simply does nothing.
+  bool get isAnnouncing => _isAnnouncing;
+
   bool isCalled(int number) => _calledSet.contains(number);
 
   // ---------------------------------------------------------------- actions
@@ -108,29 +120,39 @@ class GameController extends ChangeNotifier {
   ///
   /// Returns the new number, or `null` when all 90 have already been called.
   int? generate() {
-    if (isComplete) return null;
+    // A tap arriving mid-announcement is dropped on the floor: no snackbar, no
+    // disabled button, nothing for the caller to notice beyond the number not
+    // changing until the current one has been read out.
+    if (isComplete || _isAnnouncing) return null;
 
     final available = remainingNumbers;
     final number = available[_random.nextInt(available.length)];
     _called.add(number);
     _calledSet.add(number);
+    _isAnnouncing = true;
     notifyListeners();
 
-    unawaited(_announce(number));
+    unawaited(_announceAndSettle(number));
     unawaited(_persist());
     return number;
   }
 
   /// Repeats the current announcement without drawing a new number.
+  ///
+  /// Also ignored while an announcement is in flight, so a repeat can never
+  /// cut off the call it is repeating.
   Future<void> repeat() async {
     final number = currentNumber;
-    if (number == null) return;
-    await _announce(number);
+    if (number == null || _isAnnouncing) return;
+    _isAnnouncing = true;
+    notifyListeners();
+    await _announceAndSettle(number);
   }
 
   /// Clears every called number and starts over. Settings are kept.
   Future<void> newGame() async {
     await _voice.stop();
+    _isAnnouncing = false;
     _called.clear();
     _calledSet.clear();
     notifyListeners();
@@ -184,6 +206,24 @@ class GameController extends ChangeNotifier {
     await _voice.speak(AnnouncementBuilder.build(number).speech);
   }
 
+  /// Speaks the number, waits out the settling pause, then reopens the button.
+  ///
+  /// The text-to-speech engine is set to complete its future only once it has
+  /// finished speaking, so this holds for as long as the announcement actually
+  /// takes. With the voice off there is nothing to wait for and only the pause
+  /// applies, which is still enough to swallow a double tap.
+  Future<void> _announceAndSettle(int number) async {
+    try {
+      await _announce(number);
+      if (settleDelay > Duration.zero) {
+        await Future<void>.delayed(settleDelay);
+      }
+    } finally {
+      _isAnnouncing = false;
+      if (!_isDisposed) notifyListeners();
+    }
+  }
+
   Future<void> _persist() {
     return _storage.save(
       PersistedGame(
@@ -198,6 +238,7 @@ class GameController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _isDisposed = true;
     unawaited(_voice.dispose());
     super.dispose();
   }

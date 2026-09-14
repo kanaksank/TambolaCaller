@@ -17,6 +17,7 @@ Future<GameController> _pumpApp(
     storage: InMemoryGameStorage(saved),
     voice: FakeVoiceService(),
     random: Random(7),
+    settleDelay: Duration.zero,
   );
   await controller.load();
   await tester.pumpWidget(TambolaCallerApp(controller: controller));
