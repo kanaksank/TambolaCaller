@@ -54,8 +54,18 @@ ticket sheets — all of which work entirely on-device.
 
 ## Ticket printing
 
-The **Tickets** tab turns out print-ready A4 sheets of Housie tickets: 12 tickets per page, three
-across and four down, with cutting guides in the gutters and a `T001` identifier on each ticket.
+The **Tickets** tab turns out print-ready A4 sheets of Housie tickets: 12 tickets per page, two
+across and six down, with cutting guides in the gutters.
+
+At that layout a ticket is about 95 × 41 mm with 10.6 mm cells and 19 pt numbers — near enough the
+proportions of a shop-printed ticket. How many tickets go across is what decides legibility, since it
+fixes the cell width and so the size the numbers can print at.
+
+**Every ticket is identifiable.** Each run gets a four-character set code, and tickets are numbered
+straight through the document rather than restarting on each page, so a ticket is labelled
+`K7Q2-T014`. The code is printed on the ticket itself, not just in the page footer — tickets get cut
+apart, and once separated the footer is gone — so a ticket from one batch can never be confused with
+the identically numbered ticket from another.
 
 **Strips, not loose tickets.** Tickets are never generated independently. Each group of six is a
 *strip* that between them carries all 90 numbers exactly once, so a strip guarantees exactly one full
