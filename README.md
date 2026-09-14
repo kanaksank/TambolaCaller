@@ -14,6 +14,9 @@ voice announcement for every call. No login, no internet, no server.
   - `10–90` → *"Number 67; 6 and 7, number 67."*
   - Repeated digits stay digits — *"Number 77; 7 and 7, number 77."* The phrase "double number" is never used.
 - **Repeat button** replays the announcement without drawing a new number.
+- **One call at a time** — once a number is tapped out, further taps are quietly ignored until the
+  announcement has finished and a second has passed, so a double tap can never skip a number. Nothing
+  is shown for this: the extra taps simply do nothing.
 - **Voice controls** — on/off toggle and a Slow · Normal · Fast speed slider that defaults slightly
   slower than normal so a noisy room can follow every digit.
 - **Number board** — all 90 numbers in a 10-column grid. Called numbers are filled and check-marked,
