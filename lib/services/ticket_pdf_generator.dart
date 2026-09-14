@@ -11,10 +11,11 @@ import 'ticket_validation.dart';
 
 /// Every measurement of the printed sheet, in PDF points (72 to the inch).
 ///
-/// Twelve tickets on A4 are laid out three across and four down. Three across
-/// fixes the ticket width, and therefore the cell width and the size the
-/// numbers can be printed at; the height is then chosen to fill the page
-/// without letting a cell grow absurdly tall.
+/// Twelve tickets on A4 are laid out two across and six down. How many go
+/// across is what decides legibility: two gives a 95 mm ticket with 10.6 mm
+/// cells, near enough the proportions of a shop-printed Housie ticket, and
+/// numbers half as big again as three across allowed. The row height then
+/// follows from whatever the page has left.
 class TicketSheetLayout {
   TicketSheetLayout._({
     required this.pageWidth,
@@ -39,7 +40,7 @@ class TicketSheetLayout {
   factory TicketSheetLayout.a4() {
     const double margin = 22;
     const double columnGap = 12;
-    const double rowGap = 26;
+    const double rowGap = 16;
     const double footerHeight = 14;
     const double labelHeight = 12;
     const double outerBorder = 1.1;
@@ -48,6 +49,10 @@ class TicketSheetLayout {
 
     /// A cell may not be more than this many times taller than it is wide.
     const double maxCellAspect = 2.6;
+
+    /// Height deliberately left unused, so rounding can never push the last
+    /// row past the bottom margin.
+    const double verticalSlack = 8;
 
     final double pageWidth = PdfPageFormat.a4.width;
     final double pageHeight = PdfPageFormat.a4.height;
@@ -59,7 +64,8 @@ class TicketSheetLayout {
     final double cellWidth = ticketWidth / HousieRules.columns;
 
     final double heightPerTicket =
-        (contentHeight - rowGap * (ticketsDown - 1)) / ticketsDown;
+        (contentHeight - rowGap * (ticketsDown - 1) - verticalSlack) /
+            ticketsDown;
     final double cellHeight = math.min(
       cellWidth * maxCellAspect,
       (heightPerTicket - labelHeight) / HousieRules.rows,
@@ -96,8 +102,8 @@ class TicketSheetLayout {
     return layout;
   }
 
-  static const int ticketsAcross = 3;
-  static const int ticketsDown = 4;
+  static const int ticketsAcross = 2;
+  static const int ticketsDown = 6;
 
   final double pageWidth;
   final double pageHeight;
@@ -179,20 +185,23 @@ class TicketPdfGenerator {
       creator: 'Tambola Caller',
     );
 
-    int ticketNumber = 1;
+    // Ticket numbers run straight through the whole document rather than
+    // restarting on each page, so no two tickets in a run share an identifier.
+    int firstOnPage = 0;
     for (int index = 0; index < document.pages.length; index++) {
       final TicketPage page = document.pages[index];
       final List<String> labels = <String>[
         for (int i = 0; i < page.tickets.length; i++)
-          'T${(ticketNumber + i).toString().padLeft(3, '0')}',
+          document.labelFor(firstOnPage + i),
       ];
-      ticketNumber += page.tickets.length;
+      firstOnPage += page.tickets.length;
 
       pdf.addPage(_buildPage(
         page: page,
         labels: labels,
         pageNumber: index + 1,
         pageCount: document.pages.length,
+        reference: document.reference,
         regular: regular,
         bold: bold,
       ));
@@ -206,9 +215,14 @@ class TicketPdfGenerator {
     required List<String> labels,
     required int pageNumber,
     required int pageCount,
+    required String reference,
     required pw.Font regular,
     required pw.Font bold,
   }) {
+    final String footer = reference.isEmpty
+        ? 'Page $pageNumber of $pageCount'
+        : 'Set $reference  ·  Page $pageNumber of $pageCount';
+
     return pw.Page(
       pageFormat: PdfPageFormat.a4,
       margin: pw.EdgeInsets.all(layout.margin),
@@ -242,7 +256,7 @@ class TicketPdfGenerator {
               height: layout.footerHeight,
               child: pw.Center(
                 child: pw.Text(
-                  'Page $pageNumber of $pageCount',
+                  footer,
                   style: pw.TextStyle(
                     font: regular,
                     fontSize: layout.footerFontSize,
@@ -306,7 +320,7 @@ class TicketPdfGenerator {
           pw.Container(
             height: layout.labelHeight,
             alignment: pw.Alignment.centerRight,
-            padding: const pw.EdgeInsets.only(right: 3),
+            padding: const pw.EdgeInsets.only(right: 4),
             child: pw.Text(
               label,
               style: pw.TextStyle(

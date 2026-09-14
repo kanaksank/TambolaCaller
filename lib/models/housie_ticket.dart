@@ -93,10 +93,22 @@ class TicketPage {
 
 /// Everything that goes into one PDF.
 class TicketDocument {
-  TicketDocument(List<TicketPage> pages)
+  TicketDocument(List<TicketPage> pages, {this.reference = ''})
       : pages = List<TicketPage>.unmodifiable(pages);
 
   final List<TicketPage> pages;
+
+  /// Short code identifying this run, e.g. `K7Q2`. Printed on every ticket in
+  /// front of its number, so a ticket cut from one batch can never be
+  /// confused with the identically numbered ticket from another.
+  final String reference;
+
+  /// The identifier printed on the ticket at [index] within the document:
+  /// `K7Q2-T014`, numbered straight through from the first page to the last.
+  String labelFor(int index) {
+    final String number = 'T${(index + 1).toString().padLeft(3, '0')}';
+    return reference.isEmpty ? number : '$reference-$number';
+  }
 
   int get pageCount => pages.length;
 
