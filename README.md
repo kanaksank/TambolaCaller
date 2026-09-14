@@ -146,6 +146,10 @@ whole rule set can be tested without a device.
    (`mipmap/ic_launcher.xml` and `drawable/ic_launcher_foreground.xml`) are then unused and can be
    deleted. Foreground art needs generous padding — Android masks adaptive icons to a circle, squircle
    or rounded square depending on the launcher, and `adaptive_icon_foreground_inset` only adds 16%.
-2. Set a real `applicationId` in `android/app/build.gradle.kts` (currently `com.example.tambola_caller`).
+2. The app is published as `com.kanaksank.tambola_caller`. Changing that id means changing three
+   things together: `namespace` and `applicationId` in `android/app/build.gradle.kts`, and the
+   directory and `package` line of
+   `android/app/src/main/kotlin/com/kanaksank/tambola_caller/MainActivity.kt`. Play treats the id as
+   the app's identity, so it cannot change once a build has been published.
 3. Add a release signing config — the release build currently signs with the debug key. `flutter build
    appbundle --release` works without one, but Play will not accept a debug-signed bundle.
