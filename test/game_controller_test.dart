@@ -21,6 +21,7 @@ void main() {
       storage: storage,
       voice: voice,
       random: Random(42),
+      settleDelay: Duration.zero,
     );
     await game.load();
   });
@@ -32,10 +33,11 @@ void main() {
     expect(game.isComplete, isFalse);
   });
 
-  test('never repeats a number and covers the whole board', () {
+  test('never repeats a number and covers the whole board', () async {
     final Set<int> drawn = <int>{};
     for (int i = 0; i < 90; i++) {
       final int? number = game.generate();
+      await pumpEventQueue();
       expect(number, isNotNull);
       expect(number! >= 1 && number <= 90, isTrue);
       expect(drawn.add(number), isTrue, reason: '$number was called twice');
@@ -48,10 +50,13 @@ void main() {
     expect(game.calledCount, 90);
   });
 
-  test('tracks the current number and recent calls newest first', () {
+  test('tracks the current number and recent calls newest first', () async {
     final int first = game.generate()!;
+    await pumpEventQueue();
     final int second = game.generate()!;
+    await pumpEventQueue();
     final int third = game.generate()!;
+    await pumpEventQueue();
 
     expect(game.currentNumber, third);
     expect(game.recentNumbers(count: 2), <int>[third, second]);
@@ -61,7 +66,7 @@ void main() {
 
   test('announces automatically when voice is on', () async {
     final int number = game.generate()!;
-    await Future<void>.delayed(Duration.zero);
+    await pumpEventQueue();
 
     expect(voice.spoken, hasLength(1));
     expect(voice.spoken.single.contains('number $number'), isTrue);
@@ -70,14 +75,14 @@ void main() {
   test('stays silent when voice is off', () async {
     await game.setVoiceEnabled(false);
     game.generate();
-    await Future<void>.delayed(Duration.zero);
+    await pumpEventQueue();
 
     expect(voice.spoken, isEmpty);
   });
 
   test('repeat replays the current number without drawing a new one', () async {
     final int number = game.generate()!;
-    await Future<void>.delayed(Duration.zero);
+    await pumpEventQueue();
     voice.spoken.clear();
 
     await game.repeat();
@@ -96,7 +101,7 @@ void main() {
     game.generate();
     await game.setSpeechRate(VoiceSpeed.slow);
     await game.newGame();
-    await Future<void>.delayed(Duration.zero);
+    await pumpEventQueue();
 
     expect(game.calledCount, 0);
     expect(game.currentNumber, isNull);
@@ -107,8 +112,9 @@ void main() {
 
   test('persists the game so it survives a restart', () async {
     final int first = game.generate()!;
+    await pumpEventQueue();
     final int second = game.generate()!;
-    await Future<void>.delayed(Duration.zero);
+    await pumpEventQueue();
 
     expect(storage.current.calledNumbers, <int>[first, second]);
 
@@ -121,6 +127,113 @@ void main() {
     expect(restored.calledNumbers, <int>[first, second]);
     expect(restored.currentNumber, second);
     expect(restored.calledCount, 2);
+  });
+
+  group('one call at a time', () {
+    GameController controllerWith({
+      Duration speakDuration = Duration.zero,
+      Duration settleDelay = Duration.zero,
+      int seed = 3,
+    }) {
+      return GameController(
+        storage: InMemoryGameStorage(),
+        voice: FakeVoiceService(speakDuration: speakDuration),
+        random: Random(seed),
+        settleDelay: settleDelay,
+      );
+    }
+
+    test('a tap during the announcement draws nothing at all', () async {
+      final GameController controller =
+          controllerWith(speakDuration: const Duration(milliseconds: 60));
+      await controller.load();
+
+      expect(controller.generate(), isNotNull);
+      expect(controller.isAnnouncing, isTrue);
+      expect(controller.generate(), isNull, reason: 'still being spoken');
+      expect(controller.generate(), isNull);
+      expect(controller.calledCount, 1, reason: 'the extra taps drew nothing');
+
+      await Future<void>.delayed(const Duration(milliseconds: 130));
+
+      expect(controller.isAnnouncing, isFalse);
+      expect(controller.generate(), isNotNull);
+      expect(controller.calledCount, 2);
+    });
+
+    test('the pause after the announcement also swallows taps', () async {
+      final GameController controller =
+          controllerWith(settleDelay: const Duration(milliseconds: 80), seed: 4);
+      await controller.load();
+
+      controller.generate();
+      await pumpEventQueue();
+
+      expect(controller.isAnnouncing, isTrue,
+          reason: 'speaking is done but the pause is still running');
+      expect(controller.generate(), isNull);
+      expect(controller.calledCount, 1);
+
+      await Future<void>.delayed(const Duration(milliseconds: 150));
+
+      expect(controller.isAnnouncing, isFalse);
+      expect(controller.generate(), isNotNull);
+    });
+
+    test('holds the line with the voice switched off too', () async {
+      final GameController controller =
+          controllerWith(settleDelay: const Duration(milliseconds: 60), seed: 5);
+      await controller.load();
+      await controller.setVoiceEnabled(false);
+
+      controller.generate();
+      expect(controller.generate(), isNull);
+      expect(controller.calledCount, 1);
+
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+
+      expect(controller.generate(), isNotNull);
+      expect(controller.calledCount, 2);
+    });
+
+    test('repeat cannot cut into the call it would repeat', () async {
+      final FakeVoiceService voice =
+          FakeVoiceService(speakDuration: const Duration(milliseconds: 60));
+      final GameController controller = GameController(
+        storage: InMemoryGameStorage(),
+        voice: voice,
+        random: Random(6),
+        settleDelay: Duration.zero,
+      );
+      await controller.load();
+
+      controller.generate();
+      await controller.repeat();
+
+      expect(voice.spoken, hasLength(1), reason: 'the repeat was ignored');
+
+      await Future<void>.delayed(const Duration(milliseconds: 130));
+      await controller.repeat();
+
+      expect(voice.spoken, hasLength(2));
+    });
+
+    test('a new game reopens the button at once', () async {
+      final GameController controller = controllerWith(
+        speakDuration: const Duration(milliseconds: 40),
+        settleDelay: const Duration(milliseconds: 300),
+        seed: 7,
+      );
+      await controller.load();
+
+      controller.generate();
+      expect(controller.isAnnouncing, isTrue);
+
+      await controller.newGame();
+
+      expect(controller.isAnnouncing, isFalse);
+      expect(controller.generate(), isNotNull);
+    });
   });
 
   test('speech rate is clamped and pushed to the voice engine', () async {
