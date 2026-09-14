@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.tambola_caller"
+    namespace = "com.kanaksank.tambola_caller"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -16,7 +16,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.tambola_caller"
+        applicationId = "com.kanaksank.tambola_caller"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
