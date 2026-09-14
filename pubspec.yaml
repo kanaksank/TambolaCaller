@@ -41,5 +41,8 @@ flutter_launcher_icons:
   image_path: "assets/icon/icon.png"
   adaptive_icon_background: "#241B47"
   adaptive_icon_foreground: "assets/icon/icon_foreground.png"
-  adaptive_icon_foreground_inset: 16
+  # Android shows only the central 72 of the 108dp adaptive canvas, and a
+  # circular mask is the tightest of them. At 25% the wordmark clears every
+  # mask; at the 16% default a circle clipped the ends of TAMBOLA and CALLER.
+  adaptive_icon_foreground_inset: 25
   min_sdk_android: 24
