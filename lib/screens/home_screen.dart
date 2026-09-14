@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'board_screen.dart';
 import 'caller_screen.dart';
+import 'tickets_screen.dart';
 
-/// Two-tab shell: the caller and the full number board.
+/// Three-tab shell: the caller, the full number board and the ticket printer.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -25,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: const <Widget>[
           CallerScreen(),
           BoardScreen(),
+          TicketsScreen(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -41,7 +43,12 @@ class _HomeScreenState extends State<HomeScreen> {
           NavigationDestination(
             icon: Icon(Icons.grid_view_outlined),
             selectedIcon: Icon(Icons.grid_view_rounded),
-            label: 'NUMBER BOARD',
+            label: 'BOARD',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.confirmation_number_outlined),
+            selectedIcon: Icon(Icons.confirmation_number_rounded),
+            label: 'TICKETS',
           ),
         ],
       ),

@@ -11,6 +11,10 @@ dependencies:
     sdk: flutter
   flutter_tts: ^4.2.0
   shared_preferences: ^2.3.2
+  # Housie ticket printing: vector PDF generation plus the Android print and
+  # share sheets.
+  pdf: ^3.13.0
+  printing: ^5.15.0
 
 dev_dependencies:
   flutter_test:
