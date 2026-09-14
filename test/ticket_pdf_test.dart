@@ -16,15 +16,24 @@ void main() {
       expect(layout.pageHeight, greaterThan(layout.pageWidth));
     });
 
-    test('twelve tickets fit the printable area', () {
+    test('twelve tickets fit the printable area, two across and six down', () {
+      expect(TicketSheetLayout.ticketsAcross, 2);
+      expect(TicketSheetLayout.ticketsDown, 6);
       expect(TicketSheetLayout.ticketsAcross * TicketSheetLayout.ticketsDown,
           HousieRules.ticketsPerPage);
       expect(layout.blockWidth, lessThanOrEqualTo(layout.contentWidth + 0.5));
       expect(layout.blockHeight, lessThanOrEqualTo(layout.contentHeight + 0.5));
     });
 
+    test('tickets are about the size of a printed Housie ticket', () {
+      // 72 points to the inch: roughly 95 mm by 41 mm.
+      expect(layout.ticketWidth / 72 * 25.4, closeTo(95, 3));
+      expect(layout.ticketHeight / 72 * 25.4, closeTo(41, 3));
+      expect(layout.cellWidth / 72 * 25.4, greaterThan(9));
+    });
+
     test('keeps the numbers readable and clear of the grid lines', () {
-      expect(layout.numberFontSize, greaterThanOrEqualTo(9));
+      expect(layout.numberFontSize, greaterThanOrEqualTo(15));
       // Two digits of Helvetica-Bold are about 1.12 em wide.
       expect(layout.numberFontSize * 1.12, lessThan(layout.cellWidth - 2));
       expect(layout.numberFontSize, lessThan(layout.cellHeight));

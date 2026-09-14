@@ -134,6 +134,37 @@ void main() {
       });
     }
 
+    test('numbers every ticket uniquely, straight through the document', () {
+      final TicketGenerator generator = TicketGenerator(random: Random(9));
+      final TicketDocument document = generator.generateDocument(4);
+
+      final List<String> labels = <String>[
+        for (int i = 0; i < document.ticketCount; i++) document.labelFor(i),
+      ];
+
+      expect(labels, hasLength(48));
+      expect(labels.toSet(), hasLength(48), reason: 'no repeated identifier');
+      expect(labels.first, endsWith('T001'));
+      expect(labels[12], endsWith('T013'),
+          reason: 'numbering carries on across the page break');
+      expect(labels.last, endsWith('T048'));
+    });
+
+    test('each run carries its own set reference', () {
+      final TicketGenerator generator = TicketGenerator(random: Random(10));
+      final Set<String> references = <String>{
+        for (int i = 0; i < 12; i++)
+          generator.generateDocument(1).reference,
+      };
+
+      expect(references.length, greaterThan(8),
+          reason: 'references should differ between runs');
+      for (final String reference in references) {
+        expect(reference, hasLength(4));
+        expect(RegExp(r'^[A-Z2-9]{4}$').hasMatch(reference), isTrue);
+      }
+    });
+
     test('rejects a page count below one', () {
       final TicketGenerator generator = TicketGenerator(random: Random(7));
       expect(() => generator.generateDocument(0), throwsArgumentError);

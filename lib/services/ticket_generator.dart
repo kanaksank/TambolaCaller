@@ -58,9 +58,21 @@ class TicketGenerator {
     if (pageCount < 1) {
       throw ArgumentError.value(pageCount, 'pageCount', 'must be at least 1');
     }
-    return TicketDocument(<TicketPage>[
-      for (int page = 0; page < pageCount; page++) generatePage(),
-    ]);
+    return TicketDocument(
+      <TicketPage>[
+        for (int page = 0; page < pageCount; page++) generatePage(),
+      ],
+      reference: newReference(),
+    );
+  }
+
+  /// A short code for one run of tickets. Drawn from an alphabet without
+  /// look-alike characters, so it survives being read off a printed ticket.
+  String newReference() {
+    const String alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    return <String>[
+      for (int i = 0; i < 4; i++) alphabet[_random.nextInt(alphabet.length)],
+    ].join();
   }
 
   // --------------------------------------------------------------- internals
